@@ -80,3 +80,15 @@ There's a built-in sign in button directive that can handle everything for you. 
 This expects bootstrap and font-awesome to be around and that an image at ``/images/loading.gif`` exists. Though of course you can style it yourself.
 
 You can also trigger authentication yourself. See the source to the sign-in directive for information on doing this yourself.
+
+
+Listening for successful sign-in
+================================
+
+For authenticated APIs, you likely want to wait until the user has been authenticated before making any calls. You can do this using the ``authed`` promise:
+
+    $gapi.authed.then(function(){
+      ...
+    });
+
+Often, it's a good practice to use the ``authed`` promise instead of the ``loaded`` promise to actually load external APIs. This ensures no calls are made before the user can sign-in.
