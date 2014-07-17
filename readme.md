@@ -10,12 +10,17 @@ This component provides two separate pieces of functionality:
 Installation
 ------------
 
-Install via bower or by downloading and adding to you app. Include the javascript files:
+
+Install by downloading or via bower:
+
+    bower install --save https://bitbucket.org/cloudsherpas/eyd-s-gapi.git
+
+
+Include the javascript files:
 
 
     <script src="bower_components/eydis-gapi/eydis-gapi-signin.js"></script>
     <script src="bower_components/eydis-gapi/eydis-gapi.js"></script>
-
 
 Configuration
 -------------
