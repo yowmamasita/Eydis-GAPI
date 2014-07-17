@@ -83,7 +83,7 @@ You can also trigger authentication yourself. See the source to the sign-in dire
 
 
 Listening for successful sign-in
-================================
+--------------------------------
 
 For authenticated APIs, you likely want to wait until the user has been authenticated before making any calls. You can do this using the ``authed`` promise:
 
@@ -92,3 +92,11 @@ For authenticated APIs, you likely want to wait until the user has been authenti
     });
 
 Often, it's a good practice to use the ``authed`` promise instead of the ``loaded`` promise to actually load external APIs. This ensures no calls are made before the user can sign-in.
+
+
+License & Contributions
+-----------------------
+
+This is open-source under the Apache License, version 2. See license.txt for more info.
+
+Contributions in the form of documentation, bug reports, patches, etc. are warmly welcomed.
