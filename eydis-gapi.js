@@ -5,12 +5,12 @@ angular.module('eydis.gapi', []).
 provider('$gapi', function(){
 
   this.client_id = null;
-  this.scopes = 'https://www.googleapis.com/auth/userinfo.email';
+  this.scopes = ['https://www.googleapis.com/auth/userinfo.email'];
   this.api_base = null;
 
   var provider = this;
 
-  this.$get = function($window, $http, $q){
+  this.$get = function($window, $http, $q, $log){
     var loaded_q = $q.defer();
     var ready_q = $q.defer();
     var authed_q = $q.defer();
@@ -62,11 +62,16 @@ provider('$gapi', function(){
       return q.promise;
     };
 
-    var load = function(name, version, api_base){
+    var load = function(name, version, custom_api_base){
+      var api_base = null;
+
+      if(custom_api_base === true) api_base = provider.api_base;
+      else if(custom_api_base) api_base = custom_api_base;  
+
       var q = $q.defer();
       ready_q.promise.then(function(){
         authed_q.promise.then(function(){
-          $window.gapi.client.load(name, version, function(){ q.resolve(); }, api_base || provider.api_base);
+          $window.gapi.client.load(name, version, function(){ q.resolve(); }, api_base);
         });
       });
       return q.promise;
@@ -80,10 +85,30 @@ provider('$gapi', function(){
       /* User is authenicate and gapi is completely ready */
       ready: ready_q.promise,
 
+      /* Load a google api */
       load: load,
+
+      /* Prompt the user to sign in */
       signin: signin,
+
+      /* Get the user info */
       get_user_info: get_user_info,
-      client: function(){ return $window.gapi.client; }
+
+      /* Get gapi.client */
+      client: function(){ return $window.gapi.client; },
+
+      /* Return a gapi request as a promise */
+      promise: function(r){
+        var q = $q.defer();
+        r.execute(function(resp, raw){
+          if (!resp.code) {
+            q.resolve(resp);
+          } else {
+            q.reject(resp);
+          }
+        });
+        return q.promise;
+      }
     };
   };
 });
@@ -95,7 +120,7 @@ provider('$gapi', function(){
       if(window._gapi_stage2){
         window._gapi_stage2();
       } else {
-        setTimeout(call_loop);
+        window.setTimeout(call_loop);
       }
     };
     call_loop();
