@@ -59,12 +59,17 @@ Gapi will be loaded automatically. To listen to the "finished loading" event and
     controller('Example', function($scope, $gapi){
       $gapi.loaded.then(function(){
         $gapi.load('maps', 'v3').then(function(){
-          $gapi.client().maps...;
+          $gapi.client.maps...;
         });
       });
     });
 
-Notice the use of ``$gapi.client().api`` instead of the usual ``$gapi.client.api``.
+To load a cloud endpoints API, be sure to configure the ``api_base`` in the provider. After that, it's just a matter of passing in another parameter to ``load``.
+
+
+    $gapi.load('ferris', 'v1', true).then(function(){
+      $gapi.client.ferris...;
+    });
 
 
 Sign-in

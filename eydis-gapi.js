@@ -95,7 +95,7 @@ provider('$gapi', function(){
       get_user_info: get_user_info,
 
       /* Get gapi.client */
-      client: function(){ return $window.gapi.client; },
+      get client() { return $window.gapi.client; },
 
       /* Return a gapi request as a promise */
       promise: function(r){
