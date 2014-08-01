@@ -1,6 +1,6 @@
 {
   "name": "eydis-gapi",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": [
     "eydis-gapi-signin.html",
     "eydis-gapi-signin.js",
