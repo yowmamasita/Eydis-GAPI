@@ -72,6 +72,20 @@ To load a cloud endpoints API, be sure to configure the ``api_base`` in the prov
     });
 
 
+Promise Wrapping
+----------------
+
+The clients exposed at ``$gapi.client`` are modified to return promises. Instead of doing:
+
+  $gapi.client.drive.files.list().execute(function(result){ ... });
+
+Use promises:
+
+  $gapi.client.drive.files.list().then(function(result){ ... });
+
+This means you don't need to do ``$scope.$apply`` in every callback.
+
+
 Sign-in
 -------
 

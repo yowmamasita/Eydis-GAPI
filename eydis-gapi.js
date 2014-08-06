@@ -15,20 +15,31 @@ provider('$gapi', function(){
     var ready_q = $q.defer();
     var authed_q = $q.defer();
     var userinfo = null;
+    var wrapped_clients = {};
 
+    /* Stage2 is called after gapi bootstraps itself and initiates the load of the oauth2 library */
     $window._gapi_stage2 = function(){
       $window.gapi.client.load('oauth2', 'v2', function(){
+        /* Try to go ahead and sign the user in */
         signin(true);
       });
     };
 
+    /*
+      Performs OAuth2 sign-in.
+      If mode is set to true, then it executes a background (immediate) auth.
+      If mode is set to false, then it execute a foreground auth.
+    */
     var signin = function(mode){
       var q = $q.defer();
+
+      /* Important stuff that google expects (configured via the provider) */
       var conf = {
         client_id: provider.client_id,
         scope: provider.scopes,
         immediate: mode
       };
+
       $window.gapi.auth.authorize(conf,
         function(auth_result){
           if(!auth_result.error){
@@ -47,34 +58,95 @@ provider('$gapi', function(){
     };
 
 
+    /*
+      Gets the user's profile information (email, name, etc.)
+    */
     var get_user_info = function(){
       var q = $q.defer();
+
+      // If we've already got their info, return it.
       if(userinfo){
         q.resolve(userinfo);
-      } else {
+      }
+
+      // Otherwise make the request.
+      else {
         $window.gapi.client.oauth2.userinfo.get().execute(function(resp) {
           if (!resp.code) {
             userinfo = resp;
             q.resolve(userinfo);
+          } else {
+            q.reject();
           }
         });
       }
       return q.promise;
     };
 
+    /* Wrapper to load a discovery-based api */
     var load = function(name, version, custom_api_base){
+      var q = $q.defer();
       var api_base = null;
 
       if(custom_api_base === true) api_base = provider.api_base;
-      else if(custom_api_base) api_base = custom_api_base;  
+      else if(custom_api_base) api_base = custom_api_base;
 
-      var q = $q.defer();
+      /* When GAPI is ready */
       ready_q.promise.then(function(){
+
+        /* Load only after authenticated */
         authed_q.promise.then(function(){
-          $window.gapi.client.load(name, version, function(){ q.resolve(); }, api_base);
+          /* If already loaded */
+          if($window.gapi.client[name]){
+            console.log(name);
+            q.resolve();
+          }
+          /* Load new library */
+          else {
+            $window.gapi.client.load(name, version, function(){
+              if($window.gapi.client[name]){
+                wrapped_clients[name] = decorate($window.gapi.client[name]);
+                q.resolve();
+              } else {
+                q.reject();
+              }
+            }, api_base);
+          }
         });
       });
       return q.promise;
+    };
+
+
+    /* Wraps Google API methods into promisable items */
+    var decorate = function(item){
+      /* If it's an object, recurse */
+      if (typeof(item) === 'object'){
+        var result = {};
+        for(var key in item){
+          result[key] = decorate(item[key]);
+        }
+        return result;
+      }
+      /* If it's a function, wrap it to return a promise instead of an .execute()able function */
+      else if(typeof(item === 'function')){
+        return function(){
+          var q = $q.defer();
+          item.apply(this, arguments).execute(function(resp, raw){
+            if(!resp.error){
+              q.resolve(resp, raw);
+            } else {
+              q.reject(resp, raw);
+            }
+          });
+          return q.promise;
+        };
+      }
+      /* Otherwise, pass through */
+      else {
+        console.log(item);
+        return item;
+      }
     };
 
     return {
@@ -95,16 +167,19 @@ provider('$gapi', function(){
       get_user_info: get_user_info,
 
       /* Get gapi.client */
-      get client() { return $window.gapi.client; },
+      client: wrapped_clients,
+
+      /* Get raw gapi */
+      get gapi() { return $window.gapi.client; },
 
       /* Return a gapi request as a promise */
       promise: function(r){
         var q = $q.defer();
         r.execute(function(resp, raw){
           if (!resp.code) {
-            q.resolve(resp);
+            q.resolve(resp, raw);
           } else {
-            q.reject(resp);
+            q.reject(resp, raw);
           }
         });
         return q.promise;
