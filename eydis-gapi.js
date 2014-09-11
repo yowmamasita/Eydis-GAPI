@@ -10,12 +10,13 @@ provider('$gapi', function(){
 
   var provider = this;
 
-  this.$get = function($window, $http, $q, $log){
+  this.$get = function($window, $http, $q, $log, $interval){
     var loaded_q = $q.defer();
     var ready_q = $q.defer();
     var authed_q = $q.defer();
     var userinfo = null;
     var wrapped_clients = {};
+    var loading_clients = {};
 
     /* Stage2 is called after gapi bootstraps itself and initiates the load of the oauth2 library */
     $window._gapi_stage2 = function(){
@@ -57,6 +58,29 @@ provider('$gapi', function(){
       return q.promise;
     };
 
+    /*
+      Refreshes the authentication token.
+    */
+    var refresh_auth_token = function(){
+      var d = $q.defer();
+      $log.info('Refreshing Google auth token');
+      $window.gapi.auth.authorize(
+        {client_id: provider.client_id, immediate: true},
+        function(auth_result){
+          if(!auth_result.error){
+            $log.info('successfully refreshed auth token.');
+            d.resolve();
+          } else {
+            $log.error('failed to refresh auth token!');
+            d.reject();
+          }
+        }
+      );
+      return d.promise;
+    };
+
+    // refresh the token every 45 minutes
+    $interval(refresh_auth_token, 45 * 60 * 1000);
 
     /*
       Gets the user's profile information (email, name, etc.)
@@ -98,13 +122,18 @@ provider('$gapi', function(){
         authed_q.promise.then(function(){
           /* If already loaded */
           if($window.gapi.client[name]){
-            console.log(name);
             q.resolve();
+          }
+          /* If already loading */
+          if(loading_clients[name]){
+            return loading_clients[name];
           }
           /* Load new library */
           else {
+            loading_clients[name] = q.promise;
             $window.gapi.client.load(name, version, function(){
               if($window.gapi.client[name]){
+                $log.info('Loaded google api: ' + name);
                 wrapped_clients[name] = decorate($window.gapi.client[name]);
                 q.resolve();
               } else {
@@ -131,15 +160,35 @@ provider('$gapi', function(){
       /* If it's a function, wrap it to return a promise instead of an .execute()able function */
       else if(typeof(item === 'function')){
         return function(){
-          var q = $q.defer();
-          item.apply(this, arguments).execute(function(resp, raw){
-            if(!resp.error){
-              q.resolve(resp, raw);
+          var top_q = $q.defer();
+
+          var execute = function(){
+            var q = $q.defer();
+            item.apply(this, arguments).execute(function(resp, raw){
+              if(!resp.error){
+                q.resolve(resp, raw);
+              } else {
+                q.reject(resp, raw);
+              }
+            });
+            return q.promise;
+          };
+
+          execute().then(top_q.resolve, function(resp, raw){
+            if(resp.error.code === 401){
+              $log.info('Refreshing due to a 401');
+              refresh_auth_token().then(function(){
+                execute().then(top_q.resolve, top_q.reject);
+              }, function(){
+                top_q.reject(resp, raw);
+              });
+
             } else {
-              q.reject(resp, raw);
+              top_q.reject(resp, raw);
             }
           });
-          return q.promise;
+
+          return top_q.promise;
         };
       }
       /* Otherwise, pass through */
