@@ -161,10 +161,13 @@ provider('$gapi', function(){
       else if(typeof(item === 'function')){
         return function(){
           var top_q = $q.defer();
+          var that = this;
+          var method_args = arguments;
 
+          /* Execute the method and wrap its results in a promise */
           var execute = function(){
             var q = $q.defer();
-            item.apply(this, arguments).execute(function(resp, raw){
+            item.apply(that, method_args).execute(function(resp, raw){
               if(!resp.error){
                 q.resolve(resp, raw);
               } else {
@@ -174,7 +177,7 @@ provider('$gapi', function(){
             return q.promise;
           };
 
-          execute().then(top_q.resolve, function(resp, raw){
+          execute(arguments).then(top_q.resolve, function(resp, raw){
             if(resp.error.code === 401){
               $log.info('Refreshing due to a 401');
               refresh_auth_token().then(function(){
