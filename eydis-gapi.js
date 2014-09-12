@@ -65,7 +65,7 @@ provider('$gapi', function(){
       var d = $q.defer();
       $log.info('Refreshing Google auth token');
       $window.gapi.auth.authorize(
-        {client_id: provider.client_id, immediate: true},
+        {client_id: provider.client_id, scope: provider.scopes, immediate: true},
         function(auth_result){
           if(!auth_result.error){
             $log.info('successfully refreshed auth token.');
