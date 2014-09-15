@@ -34,7 +34,8 @@ Before you can use you must use the ``$gapiProvider`` to configure your oauth se
 
       // If you need more than just the user's basic info, add additional scope, otherwise you can leave this out.
       $gapiProvider.scopes = [
-        "https://www.googleapis.com/auth/userinfo.email",
+        "email",
+        "profile",
         "https://www.googleapis.com/auth/drive"
       ];
 

@@ -5,7 +5,7 @@ angular.module('eydis.gapi', []).
 provider('$gapi', function(){
 
   this.client_id = null;
-  this.scopes = ['https://www.googleapis.com/auth/userinfo.email'];
+  this.scopes = ['email', 'profile'];
   this.api_base = null;
 
   var provider = this;
