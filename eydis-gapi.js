@@ -1,8 +1,6 @@
-'use strict';
-
-
 angular.module('eydis.gapi', []).
 provider('$gapi', function(){
+  'use strict';
 
   this.client_id = null;
   this.scopes = ['email', 'profile'];
@@ -196,7 +194,6 @@ provider('$gapi', function(){
       }
       /* Otherwise, pass through */
       else {
-        console.log(item);
         return item;
       }
     };
