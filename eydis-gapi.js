@@ -120,7 +120,7 @@ provider('$gapi', function(){
         authed_q.promise.then(function(){
           /* If already loaded */
           if($window.gapi.client[name]){
-            q.resolve();
+            q.resolve(wrapped_clients[name]);
           }
           /* If already loading */
           if(loading_clients[name]){
@@ -133,7 +133,7 @@ provider('$gapi', function(){
               if($window.gapi.client[name]){
                 $log.info('Loaded google api: ' + name);
                 wrapped_clients[name] = decorate($window.gapi.client[name]);
-                q.resolve();
+                q.resolve(wrapped_clients[name]);
               } else {
                 q.reject();
               }
