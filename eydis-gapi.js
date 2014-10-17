@@ -113,6 +113,13 @@ provider('$gapi', function(){
       if(custom_api_base === true) api_base = provider.api_base;
       else if(custom_api_base) api_base = custom_api_base;
 
+      /* If already loading */
+      if(loading_clients[name]){
+        return loading_clients[name];
+      }
+      
+      loading_clients[name] = q.promise;
+
       /* When GAPI is ready */
       ready_q.promise.then(function(){
 
@@ -122,13 +129,8 @@ provider('$gapi', function(){
           if($window.gapi.client[name]){
             q.resolve(wrapped_clients[name]);
           }
-          /* If already loading */
-          if(loading_clients[name]){
-            return loading_clients[name];
-          }
           /* Load new library */
           else {
-            loading_clients[name] = q.promise;
             $window.gapi.client.load(name, version, function(){
               if($window.gapi.client[name]){
                 $log.info('Loaded google api: ' + name);
