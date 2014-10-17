@@ -1,13 +1,13 @@
 {
   "name": "eydis-gapi",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "main": [
     "eydis-gapi-signin.html",
     "eydis-gapi-signin.js",
     "eydis-gapi.js"
   ],
   "dependencies": {
-    "angular": "1.2.x"
+    "angular": "1.x"
   },
   "devDependencies": {
   }
