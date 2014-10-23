@@ -117,31 +117,27 @@ provider('$gapi', function(){
       if(loading_clients[name]){
         return loading_clients[name];
       }
-      
+
       loading_clients[name] = q.promise;
 
       /* When GAPI is ready */
-      ready_q.promise.then(function(){
-
-        /* Load only after authenticated */
-        authed_q.promise.then(function(){
-          /* If already loaded */
-          if($window.gapi.client[name]){
-            q.resolve(wrapped_clients[name]);
-          }
-          /* Load new library */
-          else {
-            $window.gapi.client.load(name, version, function(){
-              if($window.gapi.client[name]){
-                $log.info('Loaded google api: ' + name);
-                wrapped_clients[name] = decorate($window.gapi.client[name]);
-                q.resolve(wrapped_clients[name]);
-              } else {
-                q.reject();
-              }
-            }, api_base);
-          }
-        });
+      loaded_q.promise.then(function(){
+        /* If already loaded */
+        if($window.gapi.client[name]){
+          q.resolve(wrapped_clients[name]);
+        }
+        /* Load new library */
+        else {
+          $window.gapi.client.load(name, version, function(){
+            if($window.gapi.client[name]){
+              $log.info('Loaded google api: ' + name);
+              wrapped_clients[name] = decorate($window.gapi.client[name]);
+              q.resolve(wrapped_clients[name]);
+            } else {
+              q.reject();
+            }
+          }, api_base);
+        }
       });
       return q.promise;
     };
