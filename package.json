@@ -1,0 +1,23 @@
+{
+  "name": "eydis-gapi",
+  "version": "0.0.12",
+  "description": "Google APIs & Sign-in for Angular",
+  "main": "eydis-gapi.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonparrott/Eydis-GAPI.git"
+  },
+  "author": {
+    "name": "Jonathan Wayne Parrott",
+    "email": "jon.wayne.parrott@gmail.com",
+    "url": "https://github.com/jonparrott"
+  },
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/jonparrott/Eydis-GAPI/issues"
+  },
+  "homepage": "https://github.com/jonparrott/Eydis-GAPI#readme"
+}
