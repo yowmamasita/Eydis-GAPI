@@ -233,6 +233,7 @@ provider('$gapi', function(){
       }
     };
   };
+  this.$get.$inject = ['$window', '$http', '$q', '$log', '$interval'];
 });
 
 (function(window){
