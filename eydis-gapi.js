@@ -32,12 +32,15 @@ provider('$gapi', function(){
     var signin = function(mode){
       var q = $q.defer();
 
+
       /* Important stuff that google expects (configured via the provider) */
       var conf = {
         client_id: provider.client_id,
         scope: provider.scopes,
-        immediate: mode
+        authuser: -1,
+        response_type: 'token id_token'
       };
+      conf.immediate = mode;
 
       $window.gapi.auth.authorize(conf,
         function(auth_result){
@@ -62,8 +65,17 @@ provider('$gapi', function(){
     var refresh_auth_token = function(){
       var d = $q.defer();
       $log.info('Refreshing Google auth token');
+
+      var conf = {
+        client_id: provider.client_id,
+        scope: provider.scopes,
+        authuser: -1,
+        response_type: 'token id_token'
+      };
+      conf.immediate = true;
+
       $window.gapi.auth.authorize(
-        {client_id: provider.client_id, scope: provider.scopes, immediate: true},
+        conf,
         function(auth_result){
           if(!auth_result.error){
             $log.info('successfully refreshed auth token.');
