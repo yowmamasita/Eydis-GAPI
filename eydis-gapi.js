@@ -77,6 +77,18 @@ provider('$gapi', function(){
       return d.promise;
     };
 
+    /*
+      Retrieves the token obtained from authentication
+    */
+    var get_auth_token = function(){
+      var d = $q.defer();
+      $log.info('Retrieving Google auth token');
+      authed_q.promise.then(function() {
+        d.resolve($window.gapi.auth.getToken());
+      });
+      return d.promise;
+    };
+
     // refresh the token every 45 minutes
     $interval(refresh_auth_token, 45 * 60 * 1000);
 
@@ -209,6 +221,9 @@ provider('$gapi', function(){
 
       /* Prompt the user to sign in */
       signin: signin,
+
+      /* Retrieve auth token */
+      get_auth_token: get_auth_token,
 
       /* Get the user info */
       get_user_info: get_user_info,
