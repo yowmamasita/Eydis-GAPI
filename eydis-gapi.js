@@ -101,6 +101,10 @@ provider('$gapi', function(){
       return d.promise;
     };
 
+    var set_auth_token = function(token){
+      $window.gapi.auth.setToken(token);
+    };
+
     // refresh the token every 45 minutes
     $interval(refresh_auth_token, 45 * 60 * 1000);
 
@@ -236,6 +240,8 @@ provider('$gapi', function(){
 
       /* Retrieve auth token */
       get_auth_token: get_auth_token,
+
+      set_auth_token: set_auth_token,
 
       /* Get the user info */
       get_user_info: get_user_info,
