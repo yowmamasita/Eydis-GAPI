@@ -15,6 +15,7 @@ provider('$gapi', function(){
     var userinfo = null;
     var wrapped_clients = {};
     var loading_clients = {};
+    var error_callback = null;
 
     /* Stage2 is called after gapi bootstraps itself and initiates the load of the oauth2 library */
     $window._gapi_stage2 = function(){
@@ -195,6 +196,7 @@ provider('$gapi', function(){
               if(!resp.error){
                 q.resolve(resp, raw);
               } else {
+                if (!!error_callback) error_callback.call(this, resp, raw);
                 q.reject(resp, raw);
               }
             });
