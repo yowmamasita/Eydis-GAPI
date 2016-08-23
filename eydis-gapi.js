@@ -230,6 +230,7 @@ provider('$gapi', function(){
       
       var reset_signin = function() {
         authed_q = $q.defer();
+        self.authed = authed_q.promise;
       };
 
       /* Loader ready */
