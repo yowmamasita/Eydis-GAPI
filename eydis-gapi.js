@@ -227,6 +227,10 @@ provider('$gapi', function(){
           return item;
         }
       };
+      
+      var reset_signin = function() {
+        authed_q = $q.defer();
+      };
 
       /* Loader ready */
       self.loaded = loaded_q.promise;
@@ -240,6 +244,8 @@ provider('$gapi', function(){
 
       /* Prompt the user to sign in */
       self.signin = signin;
+      
+      self.reset_signin = reset_signin;
 
       /* Retrieve auth token */
       self.get_auth_token = get_auth_token;
